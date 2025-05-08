@@ -38,9 +38,13 @@ describe('Router fallback compatibility', () => {
   it('should not fallback if fallback is false', () => {
     // @ts-ignore
     window.history.pushState = undefined
+    const routes = [
+      { path: '/', component: document.createElement('div') }
+    ]
+    const router = new Router({ mode: 'history', base: '/', routes, fallback: false })
+    router.mount(container)
     expect(() => {
-      const router = new Router({ mode: 'history', base: '/', routes, fallback: false })
-      router.mount(container)
+      router.push('/about')
     }).toThrow(/history\.pushState/)
     window.history.pushState = originalPushState
   })

@@ -26,6 +26,10 @@ export class Router {
     const { mode = 'hash', routes = [], base = '/', fallback = true } = options
     this.mode = mode
     this.routes = routes
+    // 自动添加 / 路由，保证至少有一个首页
+    if (!this.routes.some(r => r.path === '/')) {
+      this.routes.unshift({ path: '/', component: document.createElement('div') })
+    }
     this.base = base
     this.fallback = fallback
     Router.instance = this
@@ -81,6 +85,38 @@ export class Router {
     }
   }
 
+  /**
+   * 匹配路由，支持静态、动态（:param）、通配符，优先级：静态 > 动态 > 通配符
+   */
+  private matchRoute(path: string): { route: Route | null, params: Record<string, string> } {
+    // 1. 静态路由优先
+    let route = this.routes.find(r => !r.path.includes(':') && r.path !== '*' && r.path === path)
+    if (route)
+      return { route, params: {} }
+
+    // 2. 动态路由
+    for (const r of this.routes) {
+      if (!r.path.includes(':') || r.path === '*')
+        continue
+      const paramNames: string[] = []
+      const regex = r.path.replace(/:([^/]+)/g, (_, name) => {
+        paramNames.push(name)
+        return '([^/]+)'
+      })
+      const match = path.match(new RegExp(`^${regex}$`))
+      if (match) {
+        const params: Record<string, string> = {}
+        paramNames.forEach((name, i) => {
+          params[name] = match[i + 1]
+        })
+        return { route: r, params }
+      }
+    }
+    // 3. 通配符
+    route = this.routes.find(r => r.path === '*')
+    return { route: route || null, params: {} }
+  }
+
   handleRoute() {
     let path = ''
     let params: Record<string, string> = {}
@@ -97,6 +133,8 @@ export class Router {
         if (!path.startsWith('/'))
           path = `/${path}`
       }
+      if (!path.startsWith('/'))
+        path = `/${path}`
     }
     else {
       let pathname = window.location.pathname
@@ -115,12 +153,14 @@ export class Router {
         }
         ({ path, params } = this.getPathAndParams(pathname))
       }
+      if (!path.startsWith('/'))
+        path = `/${path}`
     }
 
-    const route = this.routes.find(r => r.path === path) || this.routes.find(r => r.path === '*')
+    const { route, params: dynamicParams } = this.matchRoute(path)
     if (route && this.container) {
       this.currentRoute = route
-      this.currentParams = params
+      this.currentParams = { ...params, ...dynamicParams }
       this.container.innerHTML = ''
       this.container.appendChild(typeof route.component === 'function' ? route.component() : route.component)
     }
