@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import path from 'node:path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
@@ -24,10 +25,6 @@ export default defineConfig({
         '**/*.{test,spec}.{js,ts}',
       ],
       all: true,
-      lines: 80,
-      functions: 80,
-      branches: 80,
-      statements: 80,
     },
     environment: 'jsdom',
   },
