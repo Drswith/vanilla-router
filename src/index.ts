@@ -37,12 +37,17 @@ export class Router {
     this.container = container
     if (
       this.mode === 'history'
-      && this.fallback
       && !(window.history && typeof window.history.pushState === 'function')
     ) {
-      this.mode = 'hash'
-      const path = window.location.pathname + window.location.search + window.location.hash
-      window.location.replace(`#${path}`)
+      if (this.fallback) {
+        this.mode = 'hash'
+        const path = window.location.pathname + window.location.search + window.location.hash
+        console.warn('当前环境不支持 history.pushState，已自动切换为 hash 模式')
+        window.location.replace(`#${path}`)
+      }
+      else {
+        throw new Error('当前环境不支持 history.pushState，且 fallback 被禁用')
+      }
     }
     window.addEventListener('popstate', () => this.handleRoute())
     this.handleRoute()
