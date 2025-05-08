@@ -1,9 +1,33 @@
 {
   "name": "vanilla-router",
   "type": "module",
-  "version": "0.0.0",
-  "private": true,
-  "packageManager": "pnpm@10.10.0",
+  "version": "0.1.0",
+  "description": "一个零依赖的前端路由库，支持 hash/history，适用于原生 JS 项目。",
+  "author": "Drswith <drswith@outlook.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Drswith/vanilla-router.git"
+  },
+  "keywords": [
+    "router",
+    "vanilla",
+    "history",
+    "hash",
+    "前端路由",
+    "javascript"
+  ],
+  "exports": {
+    "import": "./dist/vanilla-router.js",
+    "require": "./dist/vanilla-router.cjs"
+  },
+  "main": "dist/vanilla-router.cjs",
+  "module": "dist/vanilla-router.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "README.md",
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -29,6 +53,7 @@
     "terser": "^5.39.0",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
+    "vite-plugin-dts": "^4.5.3",
     "vite-plugin-inspect": "^0.8.9",
     "vitest": "^3.1.3"
   },
