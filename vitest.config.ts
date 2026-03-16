@@ -1,17 +1,8 @@
-/// <reference types="vitest" />
-import path from 'node:path'
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  resolve: {
-    alias: {
-      '~/': `${path.resolve(__dirname, 'src')}/`,
-    },
-  },
-  server: {
-    port: 5173,
-  },
   test: {
+    environment: 'jsdom',
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -22,6 +13,5 @@ export default defineConfig({
       ],
       all: true,
     },
-    environment: 'jsdom',
   },
 })
