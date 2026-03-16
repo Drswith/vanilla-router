@@ -11,6 +11,8 @@ describe('Router', () => {
   let container: HTMLElement
   let routes: Route[]
   beforeEach(() => {
+    // @ts-ignore
+    Router.instance = null
     container = createContainer()
     routes = [
       { path: '/', component: document.createElement('div') },
@@ -56,7 +58,36 @@ describe('Router', () => {
     const router = new Router({ mode: 'history', base: '/app', routes })
     router.mount(container)
     router.push('/about')
-    expect(router.base + '/about').toBe('/app/about')
+    expect(window.location.pathname).toBe('/app/about')
+    expect(router.currentRoute?.path).toBe('/about')
+  })
+
+  it('should parse search params in history mode', () => {
+    routes = [
+      { path: '/', component: document.createElement('div') },
+      { path: '/search', component: document.createElement('div') },
+    ]
+    const router = new Router({ mode: 'history', base: '/app', routes })
+    router.mount(container)
+    router.push('/search?keyword=bun&sort=desc')
+    expect(window.location.pathname).toBe('/app/search')
+    expect(router.currentRoute?.path).toBe('/search')
+    expect(router.currentParams).toMatchObject({ keyword: 'bun', sort: 'desc' })
+  })
+
+  it('should intercept internal links in history mode', () => {
+    const router = new Router({ mode: 'history', base: '/app', routes })
+    router.mount(container)
+
+    const link = document.createElement('a')
+    link.href = `${window.location.origin}/app/about`
+    link.textContent = 'about'
+    document.body.appendChild(link)
+
+    link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+
+    expect(window.location.pathname).toBe('/app/about')
+    expect(router.currentRoute?.path).toBe('/about')
   })
 
   it('should match wildcard route', () => {

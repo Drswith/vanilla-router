@@ -2,6 +2,10 @@
   "name": "vanilla-router",
   "type": "module",
   "version": "0.1.0",
+  "workspaces": [
+    "playground"
+  ],
+  "packageManager": "bun@1.3.9",
   "description": "一个零依赖的前端路由库，支持 hash/history，适用于原生 JS 项目。",
   "author": "Drswith <drswith@outlook.com>",
   "license": "MIT",
@@ -18,21 +22,22 @@
     "javascript"
   ],
   "exports": {
-    "import": "./dist/vanilla-router.js",
-    "require": "./dist/vanilla-router.cjs"
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
   },
-  "main": "dist/vanilla-router.cjs",
-  "module": "dist/vanilla-router.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "README.md",
     "dist"
   ],
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "build:only": "vite build",
-    "preview": "vite preview",
+    "dev": "bun --cwd playground dev",
+    "build": "tsdown",
+    "build:only": "tsdown",
+    "build:watch": "tsdown --watch",
+    "preview": "bun --cwd playground preview",
     "test": "vitest run",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
@@ -51,14 +56,14 @@
     "rollup-plugin-visualizer": "^5.14.0",
     "simple-git-hooks": "^2.13.0",
     "terser": "^5.39.0",
+    "tsdown": "^0.14.2",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
-    "vite-plugin-dts": "^4.5.3",
     "vite-plugin-inspect": "^0.8.9",
     "vitest": "^3.1.3"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm lint-staged"
+    "pre-commit": "bun lint-staged"
   },
   "lint-staged": {
     "*": "eslint --fix"

@@ -1,0 +1,251 @@
+:root {
+  --bg: #f5efe2;
+  --bg-panel: rgba(255, 252, 245, 0.78);
+  --text: #1e1c18;
+  --muted: #6c6251;
+  --line: rgba(30, 28, 24, 0.12);
+  --accent: #c4532b;
+  --shadow: 0 24px 80px rgba(78, 54, 29, 0.15);
+  --radius-xl: 28px;
+  --radius-lg: 18px;
+  --sans: 'Avenir Next', 'Segoe UI', 'Helvetica Neue', sans-serif;
+  --mono: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.8), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(196, 83, 43, 0.15), transparent 24%),
+    linear-gradient(180deg, #f8f2e8 0%, #f1e7d6 100%);
+  font: 18px/1.5 var(--sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+button,
+a,
+code,
+strong {
+  font-family: var(--mono);
+}
+
+button {
+  border: 0;
+  cursor: pointer;
+}
+
+code {
+  padding: 0.15rem 0.4rem;
+  border-radius: 8px;
+  background: rgba(30, 28, 24, 0.06);
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+#app {
+  min-height: 100vh;
+  padding: 32px 20px 48px;
+}
+
+.shell {
+  width: min(980px, 100%);
+  margin: 0 auto;
+}
+
+.hero,
+.panel {
+  backdrop-filter: blur(14px);
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.hero {
+  padding: 40px;
+  border-radius: var(--radius-xl);
+  margin-bottom: 20px;
+}
+
+.eyebrow {
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.78rem;
+  margin-bottom: 14px;
+}
+
+.hero h1 {
+  font-size: clamp(2.4rem, 6vw, 4.8rem);
+  line-height: 0.96;
+  letter-spacing: -0.06em;
+  margin-bottom: 18px;
+}
+
+.lead {
+  max-width: 60ch;
+  color: var(--muted);
+}
+
+.panel {
+  border-radius: var(--radius-xl);
+  padding: 24px;
+}
+
+.nav,
+.mode-switch,
+.link-list,
+.toolbar,
+.status {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mode-switch {
+  margin-bottom: 14px;
+}
+
+.nav {
+  margin-bottom: 14px;
+}
+
+.mode-switch button,
+.nav button,
+.toolbar button {
+  color: var(--text);
+  background: #fffaf2;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.8rem 1rem;
+  transition:
+    transform 140ms ease,
+    border-color 140ms ease,
+    background 140ms ease;
+}
+
+.mode-switch button:hover,
+.nav button:hover,
+.toolbar button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(196, 83, 43, 0.35);
+  background: #fff;
+}
+
+.mode-switch button[data-active='true'] {
+  color: #fffaf2;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.link-list {
+  margin-bottom: 18px;
+}
+
+.link-list a {
+  color: var(--accent);
+  text-decoration: none;
+  padding: 0.2rem 0;
+  border-bottom: 1px dashed rgba(196, 83, 43, 0.35);
+}
+
+.link-list a:hover {
+  border-bottom-color: var(--accent);
+}
+
+.toolbar {
+  margin-bottom: 18px;
+}
+
+.status {
+  margin-bottom: 18px;
+}
+
+.status > div {
+  flex: 1 1 180px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.status span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.86rem;
+  margin-bottom: 8px;
+}
+
+.status strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.view {
+  min-height: 260px;
+}
+
+.page {
+  min-height: 260px;
+  padding: 28px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(196, 83, 43, 0.08), rgba(255, 255, 255, 0.72)), #fffdf8;
+  border: 1px solid rgba(196, 83, 43, 0.12);
+}
+
+.page h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+  margin-bottom: 14px;
+}
+
+.page p:last-child {
+  color: var(--muted);
+}
+
+.lazy-badge {
+  display: inline-flex;
+  margin-top: 18px;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  color: #fffaf2;
+  background: var(--accent);
+  font: 0.82rem/1 var(--mono);
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 720px) {
+  :root {
+    font-size: 16px;
+  }
+
+  #app {
+    padding-inline: 14px;
+  }
+
+  .hero,
+  .panel {
+    padding: 18px;
+  }
+
+  .mode-switch button,
+  .nav button,
+  .toolbar button {
+    width: 100%;
+    justify-content: center;
+  }
+}

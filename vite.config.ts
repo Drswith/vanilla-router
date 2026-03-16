@@ -1,7 +1,6 @@
 /// <reference types="vitest" />
 import path from 'node:path'
 import { defineConfig } from 'vite'
-import dts from 'vite-plugin-dts'
 
 export default defineConfig({
   resolve: {
@@ -9,9 +8,6 @@ export default defineConfig({
       '~/': `${path.resolve(__dirname, 'src')}/`,
     },
   },
-  plugins: [
-    dts(),
-  ],
   server: {
     port: 5173,
   },
@@ -27,12 +23,5 @@ export default defineConfig({
       all: true,
     },
     environment: 'jsdom',
-  },
-  build: {
-    lib: {
-      entry: './src/index.ts',
-      name: 'VanillaRouter',
-      formats: ['es', 'cjs', 'iife'],
-    },
   },
 })

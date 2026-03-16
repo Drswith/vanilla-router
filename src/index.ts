@@ -1,6 +1,8 @@
+export type RouteComponent = HTMLElement | (() => HTMLElement | Promise<HTMLElement>)
+
 export interface Route {
   path: string
-  component: HTMLElement | (() => HTMLElement)
+  component: RouteComponent
 }
 
 export interface RouterOptions {
@@ -19,6 +21,7 @@ export class Router {
   currentParams: Record<string, string> = {}
   container: HTMLElement | null = null
   fallback: boolean = true
+  private navigationToken = 0
 
   constructor(options: RouterOptions) {
     if (Router.instance)
@@ -53,12 +56,23 @@ export class Router {
         throw new Error('当前环境不支持 history.pushState，且 fallback 被禁用')
       }
     }
-    window.addEventListener('popstate', () => this.handleRoute())
+    window.addEventListener('popstate', Router.handleNavigationEvent)
+    window.addEventListener('hashchange', Router.handleNavigationEvent)
+    if (this.mode === 'history')
+      document.addEventListener('click', Router.handleDocumentClick)
     this.handleRoute()
   }
 
   static getInstance() {
     return Router.instance
+  }
+
+  private static handleNavigationEvent() {
+    Router.instance?.handleRoute()
+  }
+
+  private static handleDocumentClick(event: MouseEvent) {
+    Router.instance?.handleLinkClick(event)
   }
 
   private getPathAndParams(raw: string) {
@@ -67,6 +81,69 @@ export class Router {
       path: purePath,
       params: queryString ? Object.fromEntries(new URLSearchParams(queryString)) : {},
     }
+  }
+
+  private handleLinkClick(event: MouseEvent) {
+    if (this.mode !== 'history')
+      return
+    if (event.button !== 0)
+      return
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+      return
+
+    const target = event.target
+    if (!(target instanceof Element))
+      return
+
+    const anchor = target.closest('a[href]')
+    if (!(anchor instanceof HTMLAnchorElement))
+      return
+    if (anchor.target && anchor.target !== '_self')
+      return
+    if (anchor.hasAttribute('download'))
+      return
+
+    const href = anchor.getAttribute('href')
+    if (!href || href.startsWith('#'))
+      return
+    if (/^(?:mailto|tel|javascript):/i.test(href))
+      return
+
+    const url = new URL(anchor.href, window.location.origin)
+    if (url.origin !== window.location.origin)
+      return
+    if (!url.pathname.startsWith(this.base))
+      return
+
+    event.preventDefault()
+    const relativePath = url.pathname.slice(this.base.length) || '/'
+    const normalizedPath = relativePath.startsWith('/') ? relativePath : `/${relativePath}`
+    this.push(`${normalizedPath}${url.search}`)
+  }
+
+  private renderComponent(route: Route, token: number) {
+    if (!this.container)
+      return
+
+    const component = typeof route.component === 'function'
+      ? route.component()
+      : route.component
+
+    if (component instanceof Promise) {
+      void component.then((resolvedComponent) => {
+        if (!this.container || token !== this.navigationToken)
+          return
+        this.container.innerHTML = ''
+        this.container.appendChild(resolvedComponent)
+      }).catch((error) => {
+        console.error('lazy route component failed to load', error)
+      })
+      return
+    }
+
+    if (token !== this.navigationToken)
+      return
+    this.container.appendChild(component)
   }
 
   addRoute(route: Route | Route[]) {
@@ -98,11 +175,8 @@ export class Router {
     for (const r of this.routes) {
       if (!r.path.includes(':') || r.path === '*')
         continue
-      const paramNames: string[] = []
-      const regex = r.path.replace(/:([^/]+)/g, (_, name) => {
-        paramNames.push(name)
-        return '([^/]+)'
-      })
+      const paramNames = Array.from(r.path.matchAll(/:([^/]+)/g), match => match[1])
+      const regex = r.path.replace(/:[^/]+/g, '([^/]+)')
       const match = path.match(new RegExp(`^${regex}$`))
       if (match) {
         const params: Record<string, string> = {}
@@ -138,6 +212,7 @@ export class Router {
     }
     else {
       let pathname = window.location.pathname
+      const search = window.location.search
       if (!pathname || pathname === this.base) {
         if (window.location.pathname !== this.base) {
           window.history.replaceState({}, '', this.base)
@@ -151,7 +226,7 @@ export class Router {
           if (!pathname.startsWith('/'))
             pathname = `/${pathname}`
         }
-        ({ path, params } = this.getPathAndParams(pathname))
+        ({ path, params } = this.getPathAndParams(`${pathname}${search}`))
       }
       if (!path.startsWith('/'))
         path = `/${path}`
@@ -159,12 +234,12 @@ export class Router {
 
     const { route, params: dynamicParams } = this.matchRoute(path)
     if (route && this.container) {
+      const token = ++this.navigationToken
       this.currentRoute = route
       this.currentParams = { ...params, ...dynamicParams }
       this.container.innerHTML = ''
-      this.container.appendChild(typeof route.component === 'function' ? route.component() : route.component)
+      this.renderComponent(route, token)
     }
-    console.log('handleRoute', this)
   }
 
   push(path: string) {
@@ -203,11 +278,9 @@ export class Router {
 
   back() {
     window.history.back()
-    this.handleRoute()
   }
 
   go(n: number) {
     window.history.go(n)
-    this.handleRoute()
   }
 }
